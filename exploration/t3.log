@@ -1,0 +1,20 @@
+single bm25        nDCG@10=0.8653  R@100=0.9811  MRR=0.8503
+single bm25x       nDCG@10=0.9283  R@100=0.9906  MRR=0.9184
+single general     nDCG@10=0.8976  R@100=1.0000  MRR=0.8877
+single scientific  nDCG@10=0.8263  R@100=1.0000  MRR=0.7910
+hybrid nDCG@10=0.9491  R@100=1.0000  MRR=0.9424 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 0.5, 0.25], 'k': None}
+hybrid nDCG@10=0.9482  R@100=1.0000  MRR=0.9432 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 0.5, 0.5], 'k': None}
+hybrid nDCG@10=0.9469  R@100=1.0000  MRR=0.9384 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 1.0, 0.5], 'k': None}
+hybrid nDCG@10=0.9466  R@100=1.0000  MRR=0.9383 {'comps': ['bm25x', 'general'], 'method': 'minmax', 'w': [1.0, 1.0], 'k': None}
+hybrid nDCG@10=0.9458  R@100=1.0000  MRR=0.9380 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 0.75, 0.1], 'k': None}
+hybrid nDCG@10=0.9454  R@100=1.0000  MRR=0.9385 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 0.75, 0.25], 'k': None}
+hybrid nDCG@10=0.9451  R@100=1.0000  MRR=0.9395 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 0.75, 0.5], 'k': None}
+hybrid nDCG@10=0.9447  R@100=1.0000  MRR=0.9382 {'comps': ['bm25x', 'general', 'scientific'], 'method': 'minmax', 'w': [1.0, 1.0, 0.1], 'k': None}
+best hybrid without doc expansion: nDCG@10=0.9146  R@100=0.9906  MRR=0.8998 {'comps': ['bm25', 'general'], 'method': 'minmax', 'w': [1.0, 2.0], 'k': None}
+rerank first stage: hybrid 0.9491
+rerank k= 10 nDCG@10=0.8701  R@100=1.0000  MRR=0.8341
+rerank k= 20 nDCG@10=0.8577  R@100=1.0000  MRR=0.8270
+rerank k= 30 nDCG@10=0.8524  R@100=1.0000  MRR=0.8246
+rerank k= 50 nDCG@10=0.8509  R@100=1.0000  MRR=0.8223
+chosen k=10  rerank latency 2529.9 ms/query (cross-encoder only)
+EXIT 0
