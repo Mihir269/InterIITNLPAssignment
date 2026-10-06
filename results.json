@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "roll_no": "",
+  "name": "YOUR_NAME",
+  "roll_no": "ROLLNO",
   "seed": 42,
   "gpu_used": "none (CPU, 4 cores) so far",
   "task1": {
