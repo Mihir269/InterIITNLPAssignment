@@ -173,9 +173,17 @@ if args.scorer == "lexical":
     Pv, Pe = sc(val, "val"), sc(ev, "eval")
     model_name = "logreg-lexical-features"
 else:
-    from models import NLI
-    nli = finetune_nli(args.nli_model) if args.scorer == "nli-ft" else NLI(args.nli_model)
-    Pv, Pe = nli_scores(nli, val, "val"), nli_scores(nli, ev, "eval")
+    import hashlib
+    import pickle
+    key = hashlib.md5(f"{args.scorer}|{args.nli_model}|{args.depth}|{os.path.abspath(args.run)}".encode()).hexdigest()[:10]
+    cpath = os.path.join(CACHE, f"nli_probs_{key}.pkl")
+    if os.path.exists(cpath):
+        Pv, Pe = pickle.load(open(cpath, "rb"))
+    else:
+        from models import NLI
+        nli = finetune_nli(args.nli_model) if args.scorer == "nli-ft" else NLI(args.nli_model)
+        Pv, Pe = nli_scores(nli, val, "val"), nli_scores(nli, ev, "eval")
+        pickle.dump((Pv, Pe), open(cpath, "wb"))
     model_name = args.nli_model
 
 grid = []
