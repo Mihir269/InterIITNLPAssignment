@@ -2,56 +2,56 @@
   "name": "YOUR_NAME",
   "roll_no": "ROLLNO",
   "seed": 42,
-  "gpu_used": "none (CPU, 4 cores) so far",
+  "gpu_used": "none - CPU only (4 vCPU cloud container); all latencies are CPU numbers",
   "task1": {
-    "bm25_settings": "Okapi BM25 (own sparse implementation, Lucene IDF), k1=1.2, b=0.3, title+abstract, lowercase, sklearn English stopwords removed, Porter/Snowball stemming; grid over k1 x b x stem x stop x tokenizer x title on val",
+    "bm25_settings": "Okapi BM25 (own scipy implementation, Lucene IDF), k1=1.2, b=0.3, title+abstract, lowercase, sklearn English stopwords removed, Snowball stemming; grid over k1 x b x stemming x stopwords x tokenizer x title on val",
     "val_ndcg10": 0.8653
   },
   "task2": {
-    "general_model": "",
-    "scientific_model": "",
-    "val_ndcg10_general": null,
-    "val_ndcg10_scientific": null,
+    "general_model": "BAAI/bge-base-en-v1.5",
+    "scientific_model": "ncbi/MedCPT-Query-Encoder + ncbi/MedCPT-Article-Encoder",
+    "val_ndcg10_general": 0.8976,
+    "val_ndcg10_scientific": 0.8263,
     "index_time_sec": {
-      "general": null,
-      "scientific": null
+      "general": 1112.5,
+      "scientific": 1452.0
     },
     "query_latency_ms": {
-      "general": null,
-      "scientific": null
+      "general": 151.7,
+      "scientific": 137.7
     },
     "memory_mb": {
-      "general": null,
-      "scientific": null
+      "general": 433,
+      "scientific": 850
     }
   },
   "task3": {
-    "hybrid_method": "",
-    "reranker_model": "",
-    "rerank_top_k": null,
-    "val_ndcg10_hybrid": null,
-    "val_ndcg10_rerank": null,
-    "rerank_query_latency_ms": null
+    "hybrid_method": "minmax-normalised score interpolation (per-claim top-100), weights BM25 over abstracts expanded with training claims=1.0, bge-base=0.5, MedCPT=0.25",
+    "reranker_model": "BAAI/bge-reranker-base",
+    "rerank_top_k": 10,
+    "val_ndcg10_hybrid": 0.9491,
+    "val_ndcg10_rerank": 0.8701,
+    "rerank_query_latency_ms": 2529.9
   },
   "task4": {
-    "base_model": "",
-    "val_ndcg10_random_negatives": null,
-    "val_ndcg10_hard_negatives": null
+    "base_model": "BAAI/bge-small-en-v1.5",
+    "val_ndcg10_random_negatives": 0.8816,
+    "val_ndcg10_hard_negatives": 0.899
   },
   "task5": {
-    "retriever_used": "",
-    "nli_model": "",
-    "zero_shot_or_finetuned": "",
-    "val_f1": null
+    "retriever_used": "t3_hybrid (best val nDCG@10)",
+    "nli_model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "zero_shot_or_finetuned": "zero-shot",
+    "val_f1": 0.608
   },
   "report_q1": {
     "bm25_wins": [
-      null,
-      null
+      673,
+      1261
     ],
     "general_wins": [
-      null,
-      null
+      766,
+      1311
     ]
   }
 }
