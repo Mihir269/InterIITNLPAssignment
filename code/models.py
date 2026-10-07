@@ -85,13 +85,19 @@ class CrossEncoder:
 
     @torch.no_grad()
     def score(self, queries, passages, bs=32):
+        if not queries:
+            return np.zeros(0)
+        order = np.argsort([-len(p) for p in passages])
+        queries, passages = [queries[i] for i in order], [passages[i] for i in order]
         out = []
         for i in range(0, len(queries), bs):
             enc = self.tok(queries[i:i + bs], passages[i:i + bs], padding=True, truncation="only_second",
                            max_length=self.max_len, return_tensors="pt").to(DEV)
             logits = self.m(**enc).logits
             out.append((logits[:, 0] if logits.shape[1] == 1 else logits.log_softmax(-1)[:, -1]).float().cpu().numpy())
-        return np.concatenate(out) if out else np.zeros(0)
+        res = np.empty(len(order))
+        res[order] = np.concatenate(out)
+        return res
 
 
 class NLI:
@@ -109,6 +115,10 @@ class NLI:
 
     @torch.no_grad()
     def predict(self, premises, hypotheses, bs=16):
+        if not premises:
+            return np.zeros((0, 3))
+        order = np.argsort([-len(p) - len(h) for p, h in zip(premises, hypotheses)])  # length-sorted batches
+        premises, hypotheses = [premises[i] for i in order], [hypotheses[i] for i in order]
         out = []
         for i in range(0, len(premises), bs):
             enc = self.tok(premises[i:i + bs], hypotheses[i:i + bs], padding=True, truncation="only_first",
@@ -116,7 +126,9 @@ class NLI:
             p = self.m(**enc).logits.softmax(-1).float().cpu().numpy()
             e, n, c = self.idx
             out.append(np.stack([p[:, e], p[:, n] if n is not None else 1 - p[:, e] - p[:, c], p[:, c]], 1))
-        return np.concatenate(out) if out else np.zeros((0, 3))
+        res = np.empty((len(order), 3))
+        res[order] = np.concatenate(out)
+        return res
 
 
 def timed(fn, *a, **k):
