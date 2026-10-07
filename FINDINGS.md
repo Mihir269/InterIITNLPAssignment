@@ -38,7 +38,7 @@ other 9, numerical 5, negation 1. By outcome: 15 partially right (missing/extra 
    training claim (SciFact pairs claims with their negations). No effect on the other 45 claims (0.887 → 0.887).
 3. **Hybrid fusion: +0.021 over the best single system** (0.915 vs 0.898 without expansion).
 4. **Domain + expansion + fine-tuning for the reranker.** bge-reranker-base: 0.870 (hurts). ms-marco-MiniLM: 0.890 → 0.940 with
-   expanded text. MedCPT-Cross-Encoder: 0.913 → 0.956 with expanded text. Fusing reranker and first-stage scores
+   expanded text. MedCPT-Cross-Encoder: 0.913 → 0.956 with expanded text → 0.968 after fine-tuning on training claims (+0.019 over the hybrid, p=0.10). Fusing reranker and first-stage scores
    reaches 0.962 but the task format requires pure reranker order.
 5. **Hard negatives: +0.029 vs +0.012 for random negatives** (bge-small, 0.870 zero-shot). Val still rising at epoch 4;
    train-subset nDCG 0.960 vs val 0.899 and R@100 1.000 → 0.991 are the early overfitting signals.
