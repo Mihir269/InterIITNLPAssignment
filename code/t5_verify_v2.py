@@ -110,7 +110,7 @@ with open(os.path.join(PRED, f"t5_val_errors{args.tag}.csv"), "w", newline="") a
     w.writerow(["claim_id", "category"])
     for cid in sorted(errors):
         w.writerow([cid, errors[cid]])
-json.dump(dict(scorer="ce-gated", model="ncbi/MedCPT-Cross-Encoder (evidence selection) + mean of zero-shot and fine-tuned "
+json.dump(dict(scorer="ce-gated", ce=args.ce, model="ncbi/MedCPT-Cross-Encoder (evidence selection) + mean of zero-shot and fine-tuned "
                                     "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli (label)",
                s=best[0], n=best[1], rel=best[2], val=mv, cv_f1=cv, errors=cnt, n_errors=len(errors)),
           open(os.path.join(CACHE, f"t5_stats_v2{args.tag}.json"), "w"), indent=1)

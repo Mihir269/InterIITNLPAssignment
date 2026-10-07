@@ -30,7 +30,9 @@ r["task3"] = dict(hybrid_method=f"{h['method']}-normalised score interpolation (
 r["task4"] = dict(base_model=t4["base"], val_ndcg10_random_negatives=round(t4["random"]["best_val_ndcg10"], 4),
                   val_ndcg10_hard_negatives=round(t4["hard"]["best_val_ndcg10"], 4))
 if t5.get("scorer") == "ce-gated":
-    r["task5"] = dict(retriever_used="t3_hybrid top-3, evidence selected by the t3_rerank cross-encoder (ncbi/MedCPT-Cross-Encoder)",
+    sel = ("mean of z-scored MedCPT-Cross-Encoder and our fine-tuned copy (the t3_rerank model)" if "ensemble" in t5.get("ce", "")
+           else "ncbi/MedCPT-Cross-Encoder")
+    r["task5"] = dict(retriever_used=f"t3_hybrid top-3; evidence selected by cross-encoder score ({sel})",
                       nli_model="MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli: mean of zero-shot and fine-tuned (2 epochs on "
                                 "training-claim rationales) probabilities; label only, the cross-encoder decides which abstracts are evidence",
                       zero_shot_or_finetuned="finetuned (ensembled with zero-shot)", val_f1=round(t5["val"]["f1"], 4))

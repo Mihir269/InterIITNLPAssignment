@@ -27,11 +27,11 @@
   },
   "task3": {
     "hybrid_method": "minmax-normalised score interpolation (per-claim top-100), weights BM25 over abstracts expanded with training claims=1.0, bge-base=0.5, MedCPT=0.25",
-    "reranker_model": "ncbi/MedCPT-Cross-Encoder (doc text = citing training claims | title + abstract)",
+    "reranker_model": "ncbi/MedCPT-Cross-Encoder fine-tuned 2 epochs on training claims (BCE, BM25 hard negatives) (doc text = citing training claims | title + abstract)",
     "rerank_top_k": 30,
     "val_ndcg10_hybrid": 0.9491,
-    "val_ndcg10_rerank": 0.9558,
-    "rerank_query_latency_ms": 9095.5
+    "val_ndcg10_rerank": 0.9677,
+    "rerank_query_latency_ms": 9222.2
   },
   "task4": {
     "base_model": "BAAI/bge-small-en-v1.5",
@@ -39,10 +39,10 @@
     "val_ndcg10_hard_negatives": 0.899
   },
   "task5": {
-    "retriever_used": "t3_hybrid top-3, evidence selected by the t3_rerank cross-encoder (ncbi/MedCPT-Cross-Encoder)",
+    "retriever_used": "t3_hybrid top-3; evidence selected by cross-encoder score (mean of z-scored MedCPT-Cross-Encoder and our fine-tuned copy (the t3_rerank model))",
     "nli_model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli: mean of zero-shot and fine-tuned (2 epochs on training-claim rationales) probabilities; label only, the cross-encoder decides which abstracts are evidence",
     "zero_shot_or_finetuned": "finetuned (ensembled with zero-shot)",
-    "val_f1": 0.7413
+    "val_f1": 0.7711
   },
   "report_q1": {
     "bm25_wins": [

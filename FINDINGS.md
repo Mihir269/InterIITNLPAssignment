@@ -12,7 +12,7 @@ Every submitted file passes `check_format.py`.
 | t2_general | BAAI/bge-base-en-v1.5 | 0.898 | 1.000 | 0.888 |
 | t2_scientific | ncbi/MedCPT query + article encoders | 0.826 | 1.000 | 0.791 |
 | t3_hybrid | min-max fusion: BM25 over abstracts + citing training claims (1.0), bge-base (0.5), MedCPT (0.25) | 0.949 | 1.000 | 0.942 |
-| t3_rerank | MedCPT-Cross-Encoder on hybrid top-30, doc text = citing training claims + abstract | **0.956** | 1.000 | 0.946 |
+| t3_rerank | MedCPT-Cross-Encoder **fine-tuned on training claims**, hybrid top-30, doc text = citing training claims + abstract | **0.968** | 1.000 | 0.964 |
 | t4_random | bge-small fine-tuned, random negatives (best of 4 epochs) | 0.882 | 0.991 | 0.867 |
 | t4_hard | bge-small fine-tuned, BM25 ∪ dense hard negatives | 0.899 | 0.991 | 0.887 |
 
@@ -20,10 +20,13 @@ Every submitted file passes `check_format.py`.
 |---|---|---|---|---|
 | zero-shot DeBERTa-v3 NLI, threshold on max(entail, contradict) | 0.603 | 0.613 | 0.608 | 0.593 |
 | fine-tuned NLI (training rationales + mined neutrals) | 0.624 | 0.629 | 0.627 | 0.608 |
-| **submitted: MedCPT cross-encoder selects evidence, NLI ensemble labels it** | 0.711 | 0.774 | **0.741** | **0.741** |
+| MedCPT cross-encoder selects evidence, NLI ensemble labels it | 0.711 | 0.774 | 0.741 | 0.741 |
+| same with the fine-tuned cross-encoder only | 0.769 | 0.750 | 0.759 | 0.737 |
+| **submitted: mean of both cross-encoders selects evidence, NLI ensemble labels it** | 0.768 | 0.774 | **0.771** | **0.751** |
 
-Errors (submitted verifier): 45/162 validation claims; retrieval_miss 4, entity_mismatch 15, other 12,
-needs_multiple_docs 8, numerical 4, negation 2.
+Errors (submitted verifier): 43/162 validation claims; retrieval_miss 4, entity_mismatch 14, needs_multiple_docs 10,
+other 9, numerical 5, negation 1. By outcome: 15 partially right (missing/extra abstract), 14 NEI false alarms
+(30 with NLI alone), 8 misses, 6 wrong label.
 
 ## What mattered (in order of size)
 
@@ -34,7 +37,7 @@ needs_multiple_docs 8, numerical 4, negation 2.
 2. **Training claims as document expansion: BM25 0.865 → 0.928 (p<0.001).** 62/112 val gold abstracts are gold for some
    training claim (SciFact pairs claims with their negations). No effect on the other 45 claims (0.887 → 0.887).
 3. **Hybrid fusion: +0.021 over the best single system** (0.915 vs 0.898 without expansion).
-4. **Domain + expansion for the reranker.** bge-reranker-base: 0.870 (hurts). ms-marco-MiniLM: 0.890 → 0.940 with
+4. **Domain + expansion + fine-tuning for the reranker.** bge-reranker-base: 0.870 (hurts). ms-marco-MiniLM: 0.890 → 0.940 with
    expanded text. MedCPT-Cross-Encoder: 0.913 → 0.956 with expanded text. Fusing reranker and first-stage scores
    reaches 0.962 but the task format requires pure reranker order.
 5. **Hard negatives: +0.029 vs +0.012 for random negatives** (bge-small, 0.870 zero-shot). Val still rising at epoch 4;

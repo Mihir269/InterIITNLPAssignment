@@ -1,12 +1,14 @@
 claim_id,category
 24,entity_mismatch
-35,entity_mismatch
+34,other
+55,other
 63,entity_mismatch
 64,entity_mismatch
 88,other
 98,other
 106,needs_multiple_docs
 189,numerical
+229,entity_mismatch
 264,other
 355,needs_multiple_docs
 381,other
@@ -35,10 +37,10 @@ claim_id,category
 1148,numerical
 1156,other
 1206,entity_mismatch
-1219,entity_mismatch
 1223,other
 1246,other
 1275,entity_mismatch
 1291,entity_mismatch
 1311,retrieval_miss
 1390,numerical
+1404,needs_multiple_docs
