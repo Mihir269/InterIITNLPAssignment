@@ -30,8 +30,8 @@ class BiEncoder:
         spec = BI_ENCODERS.get(name, (name, None, "mean", "", "", 512))  # local dirs: mean pooling
         qname, dname, self.pool, self.qp, self.dp, self.max_len = spec
         self.tok = AutoTokenizer.from_pretrained(qname)
-        self.q = AutoModel.from_pretrained(qname).to(DEV).eval()
-        self.d = AutoModel.from_pretrained(dname).to(DEV).eval() if dname else self.q
+        self.q = AutoModel.from_pretrained(qname, torch_dtype=torch.float32).to(DEV).eval()
+        self.d = AutoModel.from_pretrained(dname, torch_dtype=torch.float32).to(DEV).eval() if dname else self.q
         self.dtok = AutoTokenizer.from_pretrained(dname) if dname else self.tok
         self.n_params = param_count(self.q) + (param_count(self.d) if dname else 0)
 
@@ -79,7 +79,7 @@ class BiEncoder:
 class CrossEncoder:
     def __init__(self, name, max_len=512):
         self.tok = AutoTokenizer.from_pretrained(name)
-        self.m = AutoModelForSequenceClassification.from_pretrained(name).to(DEV).eval()
+        self.m = AutoModelForSequenceClassification.from_pretrained(name, torch_dtype=torch.float32).to(DEV).eval()
         self.max_len = max_len
         self.n_params = param_count(self.m)
 
@@ -99,7 +99,7 @@ class NLI:
 
     def __init__(self, name, max_len=512):
         self.tok = AutoTokenizer.from_pretrained(name)
-        self.m = AutoModelForSequenceClassification.from_pretrained(name).to(DEV).eval()
+        self.m = AutoModelForSequenceClassification.from_pretrained(name, torch_dtype=torch.float32).to(DEV).eval()
         self.max_len = max_len
         lab = {v.lower(): k for k, v in self.m.config.id2label.items()}
         find = lambda key: next(i for l, i in lab.items() if l.startswith(key))

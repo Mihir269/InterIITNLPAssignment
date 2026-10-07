@@ -187,7 +187,7 @@ else:
     model_name = args.nli_model
 
 grid = []
-for n, tau, delta in itertools.product(range(1, args.depth + 1), np.arange(0.3, 0.96, 0.05), [0.0, 0.1, 0.2, 0.4]):
+for n, tau, delta in itertools.product(range(1, args.depth + 1), np.arange(0.1, 0.96, 0.05), [0.0, 0.1, 0.2, 0.4]):
     grid.append((prf(decide(val, "val", Pv, n, tau, delta), val)["f1"], n, round(float(tau), 2), delta))
 grid.sort(reverse=True)
 f1, n, tau, delta = grid[0]
