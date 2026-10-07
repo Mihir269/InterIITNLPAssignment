@@ -7,7 +7,10 @@ import numpy as np
 
 from common import CACHE, PRED, SEED, evaluate, fmt, load_claims, per_claim, qrels, write_trec
 
-MODEL = "ncbi/MedCPT-Cross-Encoder"
+import sys
+
+MODEL = sys.argv[1] if len(sys.argv) > 1 else "ncbi/MedCPT-Cross-Encoder"
+LABEL = sys.argv[2] if len(sys.argv) > 2 else MODEL
 val, ev = load_claims("val"), load_claims("eval")
 qv = qrels(val)
 H = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))
@@ -37,7 +40,7 @@ print(f"chosen k={k}: Δ vs hybrid {d.mean():+.4f} (bootstrap p={p:.3f}); claims
 write_trec(os.path.join(PRED, "t3_rerank.trec"), [c["id"] for c in ev], [assemble("eval", c["id"], k) for c in ev], "rerank")
 lat = json.load(open(f("eval").replace(".json", "_latency.json")))["ms_per_query"] * k / 30
 st = json.load(open(os.path.join(CACHE, "t3_stats.json")))
-st.update(reranker=MODEL + " (doc text = citing training claims | title + abstract)", k=k,
+st.update(reranker=LABEL + " (doc text = citing training claims | title + abstract)", k=k,
           rerank={str(kk): v for kk, v in res.items()}, rerank_latency_ms=lat, rerank_delta_vs_hybrid=float(d.mean()), rerank_p=float(p),
           rerank_v1=dict(model="BAAI/bge-reranker-base", k=10, val_ndcg10=0.8701, latency_ms=2529.9))
 json.dump(st, open(os.path.join(CACHE, "t3_stats.json"), "w"), indent=1)
