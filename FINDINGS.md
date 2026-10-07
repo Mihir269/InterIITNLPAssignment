@@ -13,8 +13,8 @@ Every submitted file passes `check_format.py`.
 | t2_scientific | ncbi/MedCPT query + article encoders | 0.826 | 1.000 | 0.791 |
 | t3_hybrid | min-max fusion: BM25 over abstracts + citing training claims (1.0), bge-base (0.5), MedCPT (0.25) | 0.949 | 1.000 | 0.942 |
 | t3_rerank | MedCPT-Cross-Encoder **fine-tuned on training claims**, hybrid top-30, doc text = citing training claims + abstract | **0.968** | 1.000 | 0.964 |
-| t4_random | bge-small fine-tuned, random negatives (best of 4 epochs) | 0.882 | 0.991 | 0.867 |
-| t4_hard | bge-small fine-tuned, BM25 ∪ dense hard negatives | 0.899 | 0.991 | 0.887 |
+| t4_random | bge-base fine-tuned, random negatives (best of 4 epochs: 1) | 0.906 | 0.991 | 0.900 |
+| t4_hard | bge-base fine-tuned, BM25 ∪ dense hard negatives (best epoch: 2) | 0.920 | 1.000 | 0.914 |
 
 | Verification | P | R | F1 | 5-fold CV F1 |
 |---|---|---|---|---|
@@ -40,8 +40,10 @@ other 9, numerical 5, negation 1. By outcome: 15 partially right (missing/extra 
 4. **Domain + expansion + fine-tuning for the reranker.** bge-reranker-base: 0.870 (hurts). ms-marco-MiniLM: 0.890 → 0.940 with
    expanded text. MedCPT-Cross-Encoder: 0.913 → 0.956 with expanded text → 0.968 after fine-tuning on training claims (+0.019 over the hybrid, p=0.10). Fusing reranker and first-stage scores
    reaches 0.962 but the task format requires pure reranker order.
-5. **Hard negatives: +0.029 vs +0.012 for random negatives** (bge-small, 0.870 zero-shot). Val still rising at epoch 4;
-   train-subset nDCG 0.960 vs val 0.899 and R@100 1.000 → 0.991 are the early overfitting signals.
+5. **Hard negatives: 0.920 vs 0.906 for random negatives** (bge-base, 0.877 before training at 256 tokens; bge-small: 0.899
+   vs 0.882). Overfitting: the random-negative run peaks at epoch 1 (0.906) and falls to 0.891 by epoch 3 while
+   training-claim nDCG rises 0.960 → 0.972; the hard-negative run peaks at epoch 2 (0.920 → 0.917). Batch 16 ran
+   out of memory on CPU for bge-base, so batch 8 was used.
 
 ## Tried and rejected (no significant gain)
 

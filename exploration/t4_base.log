@@ -1,0 +1,12 @@
+440 (claim, gold doc) training pairs from 399 claims
+random epoch 0 nDCG@10=0.8771  R@100=1.0000  MRR=0.8563
+random epoch 1 loss 0.1121 train-nDCG 0.9604 val nDCG@10=0.9058  R@100=0.9906  MRR=0.8999
+random epoch 2 loss 0.0144 train-nDCG 0.9619 val nDCG@10=0.8955  R@100=0.9906  MRR=0.8851
+random epoch 3 loss 0.0239 train-nDCG 0.9666 val nDCG@10=0.8905  R@100=0.9906  MRR=0.8787
+random epoch 4 loss 0.0228 train-nDCG 0.9722 val nDCG@10=0.8924  R@100=0.9906  MRR=0.8787
+hard epoch 0 nDCG@10=0.8771  R@100=1.0000  MRR=0.8563
+hard epoch 1 loss 0.2092 train-nDCG 0.9666 val nDCG@10=0.8975  R@100=1.0000  MRR=0.8861
+hard epoch 2 loss 0.0718 train-nDCG 0.9877 val nDCG@10=0.9198  R@100=1.0000  MRR=0.9141
+hard epoch 3 loss 0.0478 train-nDCG 0.9883 val nDCG@10=0.9183  R@100=1.0000  MRR=0.9136
+hard epoch 4 loss 0.0419 train-nDCG 0.9877 val nDCG@10=0.9170  R@100=1.0000  MRR=0.9094
+EXIT 0

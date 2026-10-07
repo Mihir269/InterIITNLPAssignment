@@ -34,9 +34,9 @@
     "rerank_query_latency_ms": 9222.2
   },
   "task4": {
-    "base_model": "BAAI/bge-small-en-v1.5",
-    "val_ndcg10_random_negatives": 0.8816,
-    "val_ndcg10_hard_negatives": 0.899
+    "base_model": "BAAI/bge-base-en-v1.5",
+    "val_ndcg10_random_negatives": 0.9058,
+    "val_ndcg10_hard_negatives": 0.9198
   },
   "task5": {
     "retriever_used": "t3_hybrid top-3; evidence selected by cross-encoder score (mean of z-scored MedCPT-Cross-Encoder and our fine-tuned copy (the t3_rerank model))",
