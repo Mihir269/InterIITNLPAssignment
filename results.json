@@ -40,9 +40,9 @@
   },
   "task5": {
     "retriever_used": "t3_hybrid (best val nDCG@10)",
-    "nli_model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
-    "zero_shot_or_finetuned": "zero-shot",
-    "val_f1": 0.608
+    "nli_model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli, fine-tuned 2 epochs on training-claim rationales (+ mined neutral sentences)",
+    "zero_shot_or_finetuned": "finetuned",
+    "val_f1": 0.6265
   },
   "report_q1": {
     "bm25_wins": [

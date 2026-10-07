@@ -10,7 +10,7 @@ All scripts run from `code/`, use seed 42, write runs to `predictions/` and inte
 | 2 Dense (general + scientific) | `python t2_dense.py --general BAAI/bge-base-en-v1.5 --scientific ncbi/MedCPT` | `t2_general.trec`, `t2_scientific.trec`, `val_general.trec`, `cache/t2_stats.json` |
 | 3 Hybrid + rerank | `python t3_hybrid_rerank.py --reranker BAAI/bge-reranker-base --ks 10,20,30,50,100` | `t3_hybrid.trec`, `t3_rerank.trec`, `cache/t3_stats.json`, `cache/rerank_runs.json` |
 | 4 Fine-tuning | `python t4_finetune.py --base BAAI/bge-base-en-v1.5 --epochs 4` | `t4_random.trec`, `t4_hard.trec`, `cache/t4_stats.json` |
-| 5 Verification + errors | `python t5_verify.py --scorer nli --nli_model MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli` | `t5_verification.csv`, `t5_val_verification.csv`, `t5_val_errors.csv` |
+| 5 Verification + errors | `python t5_verify.py --run ../cache/hybrid_runs.json --scorer nli-ft --depth 3` (needs `cache/hybrid_runs.json`, see below) | `t5_verification.csv`, `t5_val_verification.csv`, `t5_val_errors.csv` |
 
 Order matters: 1 → 2 → 3 → 4/5 (Task 3 reads the Task 1 settings and the Task 2 score matrices; Task 5 reads the reranked runs).
 
@@ -22,3 +22,8 @@ Exploration (no pretrained weights): `python explore_lexical.py` (doc expansion 
 fusion), `python explore_ltr.py` (sentence-level BM25, title field, learning-to-rank).
 
 All parameter counts are ≤ 400M: bge-base 110M, MedCPT 2×110M, bge-reranker-base 278M, DeBERTa-v3-base NLI 184M.
+
+`cache/hybrid_runs.json` (input to Task 5) holds the t3_hybrid rankings for val/eval plus plain BM25 rankings for
+training claims; it is written by the snippet in `make_hybrid_runs.py`. `python make_results.py` (with
+`T5_STATS=t5_stats_nlift.json`) regenerates `results.json` from the stats every task saves in `cache/`.
+NLI checkpoints are force-loaded in float32: the DeBERTa NLI checkpoint is stored in fp16 and diverges (NaN) if fine-tuned that way.
