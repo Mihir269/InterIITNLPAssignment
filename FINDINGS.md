@@ -1,55 +1,74 @@
-# Findings so far (work in progress)
-
-Status: Task 1 is complete and validated. Tasks 2–5 are fully coded and smoke-tested end-to-end (tiny random
-models, outputs pass `check_format.py`), but **not yet run with real models**: this cloud session's network
-policy blocks `huggingface.co`, so no pretrained weights can be downloaded here.
+# Findings
 
 All numbers are on the validation split (162 claims; 106 have gold evidence, so one claim ≈ 0.009 nDCG@10).
-Δ / p = paired bootstrap vs BM25 (5000 resamples).
+"p" = paired bootstrap (5000 resamples) against the stated reference. All runs on CPU (4 vCPU), seed 42.
+Every submitted file passes `check_format.py`.
 
-## Data
-- 5,183 abstracts (≈202 words, ≈9 sentences); train 647 / val 162 / eval 300 claims.
-- 35% of claims are NEI. Almost all evidence claims have 1 gold abstract; no claim mixes SUPPORT and CONTRADICT.
-- **Gold docs recur across splits**: 62/112 val gold docs are also gold for some training claim.
-- **Claims come in near-duplicate (negated) pairs**: 69/300 eval claims have a training claim with >0.7 word Jaccard.
-  On val (53 such claims): when the training twin has evidence it is the *same doc with the label flipped* 30/35 times;
-  when the twin is NEI the val claim is NEI 18/18 times.
+## Submitted systems
 
-## Task 1 – BM25
-| setting | nDCG@10 | R@100 | MRR |
-|---|---|---|---|
-| default k1=0.9 b=0.4 (stem+stop+title) | 0.8625 | 0.981 | 0.845 |
-| tuned k1=1.2 b=0.3 | **0.8653** | 0.981 | 0.850 |
-- Stemming matters (+0.024), title helps (+0.008); stopwords and k1/b barely matter — tuning gain is inside noise.
-- Verified against `rank_bm25` (0.861) and `pytrec_eval` (identical metric values).
+| Run | System | nDCG@10 | R@100 | MRR |
+|---|---|---|---|---|
+| t1_bm25 | BM25 k1=1.2 b=0.3, stem + stopwords + title | 0.865 | 0.981 | 0.850 |
+| t2_general | BAAI/bge-base-en-v1.5 | 0.898 | 1.000 | 0.888 |
+| t2_scientific | ncbi/MedCPT query + article encoders | 0.826 | 1.000 | 0.791 |
+| t3_hybrid | min-max fusion: BM25 over abstracts + citing training claims (1.0), bge-base (0.5), MedCPT (0.25) | 0.949 | 1.000 | 0.942 |
+| t3_rerank | MedCPT-Cross-Encoder on hybrid top-30, doc text = citing training claims + abstract | **0.956** | 1.000 | 0.946 |
+| t4_random | bge-small fine-tuned, random negatives (best of 4 epochs) | 0.882 | 0.991 | 0.867 |
+| t4_hard | bge-small fine-tuned, BM25 ∪ dense hard negatives | 0.899 | 0.991 | 0.887 |
 
-## Retrieval ideas that need no pretrained weights
-| idea | nDCG@10 | Δ | p |
-|---|---|---|---|
-| **Doc expansion: append training claims to their gold abstracts** | **0.9283** | **+0.063** | <0.001 |
-| — on claims whose gold doc was never a training gold doc (45) | 0.8868 → 0.8868 | 0 | — |
-| — on claims whose gold doc was (61) | 0.8495 → 0.9588 | +0.109 | — |
-| RM3 pseudo-relevance feedback (best) | 0.8686 | +0.003 | 0.30 |
-| LSA-256 alone / fused with BM25 | 0.673 / ≤0.861 | ≤ −0.004 | — |
-| Max-sentence BM25 fused | 0.854 | −0.011 | — |
-| Title-field boost | 0.863 | −0.003 | — |
-| Learning-to-rank (logreg on lexical features, trained on train claims) | 0.8668 | +0.002 | 0.40 |
+| Verification | P | R | F1 | 5-fold CV F1 |
+|---|---|---|---|---|
+| zero-shot DeBERTa-v3 NLI, threshold on max(entail, contradict) | 0.603 | 0.613 | 0.608 | 0.593 |
+| fine-tuned NLI (training rationales + mined neutrals) | 0.624 | 0.629 | 0.627 | 0.608 |
+| **submitted: MedCPT cross-encoder selects evidence, NLI ensemble labels it** | 0.711 | 0.774 | **0.741** | **0.741** |
 
-Takeaway: lexical signals are saturated; the only big lever is using the training claims as document expansion
-(exploits SciFact's paired-claim construction, uses only training data, so within the rules — but worth stating openly).
+Errors (submitted verifier): 45/162 validation claims; retrieval_miss 4, entity_mismatch 15, other 12,
+needs_multiple_docs 8, numerical 4, negation 2.
 
-## Task 5 – verification without pretrained weights (lower bound)
-Retriever: expanded BM25. Scorer: logistic regression on lexical features (overlap, negation/direction cue mismatch,
-rank, score margin), trained on training claims; n/τ/δ tuned on val F1.
-| system | P | R | F1 |
-|---|---|---|---|
-| lexical scorer | 0.396 | 0.492 | 0.439 |
-| + paired-claim prior (Jaccard ≥ 0.6 → copy twin's docs, flip labels) | 0.557 | 0.516 | **0.536** |
+## What mattered (in order of size)
 
-## Code ready to run once HuggingFace is reachable
-- T2: `BAAI/bge-base-en-v1.5` (general, 110M) and `ncbi/MedCPT` query+article encoders (biomedical, 2×110M).
-- T3: z-score / min-max / RRF fusion over {BM25, BM25+expansion} × {general, scientific}; `BAAI/bge-reranker-base` (278M), k chosen on val.
-- T4: InfoNCE with in-batch + 1 explicit negative (random vs hard from BM25 ∪ base-dense ranks 3–30, gold removed);
-  per-epoch val nDCG and train-subset nDCG to detect overfitting; best epoch kept.
-- T5: sentence-level zero-shot NLI (`MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli`, 184M) or fine-tuned on training
-  rationales; rule-based error tagging (retrieval_miss / needs_multiple_docs / negation / numerical / entity_mismatch / other).
+1. **Cross-encoder as the evidence selector in verification: F1 0.608 → 0.741 (CV).** NLI is good at *which label*
+   (gold SUPPORT: mean p(entail) 0.74; gold CONTRADICT: mean p(contradict) 0.89) but bad at *whether an abstract is
+   evidence* (pair AUC 0.68). The MedCPT cross-encoder with expanded text gets pair AUC 0.96 and separates NEI claims
+   at AUC 0.90 (hybrid retrieval score: 0.72). Split the two jobs.
+2. **Training claims as document expansion: BM25 0.865 → 0.928 (p<0.001).** 62/112 val gold abstracts are gold for some
+   training claim (SciFact pairs claims with their negations). No effect on the other 45 claims (0.887 → 0.887).
+3. **Hybrid fusion: +0.021 over the best single system** (0.915 vs 0.898 without expansion).
+4. **Domain + expansion for the reranker.** bge-reranker-base: 0.870 (hurts). ms-marco-MiniLM: 0.890 → 0.940 with
+   expanded text. MedCPT-Cross-Encoder: 0.913 → 0.956 with expanded text. Fusing reranker and first-stage scores
+   reaches 0.962 but the task format requires pure reranker order.
+5. **Hard negatives: +0.029 vs +0.012 for random negatives** (bge-small, 0.870 zero-shot). Val still rising at epoch 4;
+   train-subset nDCG 0.960 vs val 0.899 and R@100 1.000 → 0.991 are the early overfitting signals.
+
+## Tried and rejected (no significant gain)
+
+| Idea | Result |
+|---|---|
+| BM25 k1/b tuning beyond defaults | +0.003 (noise) |
+| RM3 pseudo-relevance feedback | +0.003, p=0.30 |
+| LSA "dense" retriever / fused | 0.673 / −0.004 |
+| Max-sentence BM25, title boost | −0.011 / −0.003 |
+| Learning-to-rank on lexical features | +0.002, p=0.40 |
+| Adding fine-tuned bi-encoder to the hybrid | +0.003, p=0.30 (but 0.915 → 0.926 without expansion) |
+| Dense claim-to-claim kNN in the hybrid | +0.0025, p=0.12 (0.915 → 0.942 without expansion: same signal as the expansion) |
+| Retrieval-score gate for NEI claims | CV F1 0.571 vs 0.593 (overfits) |
+
+## Bugs found on the way
+
+- The DeBERTa NLI checkpoint is stored in fp16 and `transformers` now keeps that dtype: fine-tuning produced NaN after
+  one step. All models are now force-loaded in float32 (zero-shot results unchanged).
+- Unsorted NLI batches padded every sentence to full-abstract length; length-sorting made scoring several times faster.
+
+## Optional, not in the submitted files: paired-claim prior
+
+If a training claim is a near-duplicate (word Jaccard ≥ 0.7) of the test claim, copy its gold abstracts with flipped
+labels (30/35 val pairs with evidence flip; 18/18 NEI twins stay NEI). On top of fine-tuned NLI: F1 0.627 → 0.690
+(CV 0.682). Left out because it bypasses the retriever and the NLI classifier the task asks for. Files in
+`exploration/`.
+
+## Caveats
+
+- Validation is small: a single tuned threshold is optimistic by ≈0.015 F1 (in-sample vs 5-fold CV), and nDCG
+  differences below ≈0.01 are not significant.
+- Expansion and the paired-claim structure exploit how SciFact was built; they use only training claims (allowed by
+  the rules) but would not transfer to a corpus without labelled neighbouring claims.
