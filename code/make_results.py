@@ -29,10 +29,16 @@ r["task3"] = dict(hybrid_method=f"{h['method']}-normalised score interpolation (
                   val_ndcg10_rerank=round(t3["rerank"][str(t3["k"])]["ndcg10"], 4), rerank_query_latency_ms=round(t3["rerank_latency_ms"], 1))
 r["task4"] = dict(base_model=t4["base"], val_ndcg10_random_negatives=round(t4["random"]["best_val_ndcg10"], 4),
                   val_ndcg10_hard_negatives=round(t4["hard"]["best_val_ndcg10"], 4))
-r["task5"] = dict(retriever_used="t3_hybrid (best val nDCG@10)",
-                  nli_model=t5["model"] + (", fine-tuned 2 epochs on training-claim rationales (+ mined neutral sentences)" if t5["scorer"] == "nli-ft" else ""),
-                  zero_shot_or_finetuned="finetuned" if t5["scorer"] == "nli-ft" else "zero-shot",
-                  val_f1=round(t5["val"]["f1"], 4))
+if t5.get("scorer") == "ce-gated":
+    r["task5"] = dict(retriever_used="t3_hybrid top-3, evidence selected by the t3_rerank cross-encoder (ncbi/MedCPT-Cross-Encoder)",
+                      nli_model="MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli: mean of zero-shot and fine-tuned (2 epochs on "
+                                "training-claim rationales) probabilities; label only, the cross-encoder decides which abstracts are evidence",
+                      zero_shot_or_finetuned="finetuned (ensembled with zero-shot)", val_f1=round(t5["val"]["f1"], 4))
+else:
+    r["task5"] = dict(retriever_used="t3_hybrid (best val nDCG@10)",
+                      nli_model=t5["model"] + (", fine-tuned 2 epochs on training-claim rationales (+ mined neutral sentences)" if t5["scorer"] == "nli-ft" else ""),
+                      zero_shot_or_finetuned="finetuned" if t5["scorer"] == "nli-ft" else "zero-shot",
+                      val_f1=round(t5["val"]["f1"], 4))
 r["report_q1"] = {"bm25_wins": [673, 1261], "general_wins": [766, 1311]}
 json.dump(r, open(os.path.join(ROOT, "results.json"), "w"), indent=2)
 print(json.dumps(r, indent=2))
