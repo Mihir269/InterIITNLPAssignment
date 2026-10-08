@@ -13,6 +13,9 @@ if r.get("roll_no") in ("", "ROLLNO"):
 PY
 OUT="${ROLL}_nlp_bootcamp.zip"
 rm -f "$OUT"
-zip -qr "$OUT" code predictions results.json report.md -x "code/__pycache__/*"
+# exploration-only scripts stay in the repo but are not part of the submission
+EXCLUDE=(explore_lexical.py explore_ltr.py explore_fusion.py explore_claimknn.py explore_rerank.py
+         explore_groups.py explore_count_model.py analyze_errors.py run_bg.sh)
+zip -qr "$OUT" code predictions results.json report.md -x "code/__pycache__/*" $(printf ' code/%s' "${EXCLUDE[@]}")
 python3 check_format.py "$OUT"
 echo "wrote $OUT"

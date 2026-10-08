@@ -18,8 +18,8 @@ Task 5 variants: `--scorer nli-ft` fine-tunes the NLI model on training rational
 pretrained weights (with `--run ../cache/bm25x_runs.json` from `python make_bm25_runs.py`); `--pair_prior 0.6`
 adds the near-duplicate-training-claim prior. `--tag _x` writes alternative output files without overwriting.
 
-Exploration (no pretrained weights): `python explore_lexical.py` (doc expansion with training claims, RM3, LSA,
-fusion), `python explore_ltr.py` (sentence-level BM25, title field, learning-to-rank).
+Report Q5 experiment (learned evidence selection, not used in the submission): `python build_train_features.py`
+(features for training claims, ~1.5 h on CPU), then `python fit_selection_model.py`.
 
 All parameter counts are ≤ 400M: bge-base 110M, MedCPT 2×110M, bge-reranker-base 278M, DeBERTa-v3-base NLI 184M.
 
