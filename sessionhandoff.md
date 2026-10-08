@@ -98,7 +98,8 @@ and by topic (k-means on bge-base claim embeddings). Significant weak spots: mul
 training twin, molecular/cell-biology topics. Group-specific thresholds overfit (`explore_groups.py`). The usable finding
 was the candidate pool: verifying over the t3_rerank top 3 instead of the hybrid's (118 vs 112 of 124 gold abstracts
 reachable) raised 5-fold CV F1 0.751 → 0.763 and cut error claims 43 → 40. Adopted. The fine-tuned NLI model is now
-saved in `cache/nli-ft`.
+saved in `cache/nli-ft`. A learned "how many abstracts" model (trained on training claims with unbiased zero-shot
+features) reached only 0.745 held-out (0.757 CV) and was not adopted; see `error_analysis.md` §8.
 
 ## 4. Bugs and operational lessons
 
@@ -145,7 +146,9 @@ On a GPU all of this takes well under an hour (`models.py` picks CUDA automatica
 
 ## 7. If work continues
 
-The most promising next step (report Q5): 32 of the 40 remaining verification errors are about *how many* abstracts
-to return (misses, missing second documents, NEI false alarms); only 6 have the wrong label. A small claim-level model
-trained on training claims to predict 0/1/2 abstracts from cross-encoder and NLI features should help most. It needs
-cross-encoder and NLI scores for the training claims first (≈2 h on CPU).
+32 of the 40 remaining verification errors are about *how many* abstracts to return; only 6 have the wrong label. A learned
+selection model was tried and lost (0.745 held-out vs 0.763) because unbiased features for the training claims could only
+come from zero-shot models. Next: cross-fitted fine-tuning of the cross-encoder (k models, each holding out part of the
+training claims) so every training claim gets an unbiased score from the strong fine-tuned model, then retrain the
+selection model on those features (`code/fit_selection_model.py` takes features from `cache/train_sel_features.json`).
+Cost on this CPU container: roughly 3–4 h per fold; on a GPU well under an hour in total.

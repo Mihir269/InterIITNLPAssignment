@@ -59,6 +59,7 @@ alarms (30 with NLI alone), 6 wrong label, 2 wrong abstract. Full breakdown: `er
 | Dense claim-to-claim kNN in the hybrid | +0.0025, p=0.12 (0.915 → 0.942 without expansion: same signal as the expansion) |
 | Retrieval-score gate for NEI claims | CV F1 0.571 vs 0.593 (overfits) |
 | Group-specific thresholds (twin / topic), SUPPORT-CONTRADICT bias | CV F1 0.745 / 0.748 / 0.743 vs 0.751 (overfit) |
+| Learned evidence selection ("how many abstracts"): logreg / gradient boosting trained on training claims with unbiased zero-shot features | held-out val 0.745 / 0.718; val-tuned CV 0.757 vs 0.763. Trained on val (nested CV): 0.747. Zero-shot features are weaker than the fine-tuned cross-encoder the threshold rule uses |
 
 ## Bugs found on the way
 

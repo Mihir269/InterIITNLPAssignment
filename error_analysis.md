@@ -133,3 +133,12 @@ With 10–30 claims per topic, one claim moves a topic's error rate by 3–10 po
    retrained and saved) raised 5-fold CV F1 from 0.751 to **0.763** (in-sample 0.771 → 0.763), cut error claims 43 → 40,
    retrieval_miss 4 → 2 and needs_multiple_docs 10 → 6. Adopted; this file describes the adopted system.
 
+3. **Learned evidence selection** ("how many abstracts to return"; `code/build_train_features.py`,
+   `code/fit_selection_model.py`, `code/explore_count_model.py`). Per-candidate model on cross-encoder and NLI scores, rank,
+   gap to the best candidate, best/second score, training twin, claim length.
+   - Trained on validation (nested 5-fold CV): 0.745–0.747.
+   - Trained on the 647 training claims with unbiased zero-shot features (leave-one-out expanded abstracts; the fine-tuned
+     models were trained on these claims, so their scores there are overconfident): held-out validation 0.745 (logistic
+     regression), 0.718 (gradient boosting); with the threshold tuned on validation, 5-fold CV 0.757.
+   - Submitted threshold rule: 0.763. Not adopted. The limit is the inputs: unbiased features on training claims can only
+     come from zero-shot models, which are weaker than the fine-tuned cross-encoder. Cross-fitted fine-tuning would fix this.

@@ -71,9 +71,8 @@ def rows_for(claims, sp):
         dl = R[sp][str(c["id"])][0][:3]
         sc = [ZS[sp][str(c["id"])][d] for d in dl]
         nz = [NZ[SP[sp]][(c["id"], d)] for d in dl]
-        nz2 = [(p[0], p[2]) for p in nz]
-        for row, d, pz in zip(feats(sc, nz2, sc, c["claim"], twin(c)), dl, nz):
-            pe, pc = np.mean([pz, NF[SP[sp]][(c["id"], d)]], 0)[[0, 2]]
+        for row, d, pz in zip(feats(sc, nz, sc, c["claim"], twin(c)), dl, nz):
+            pe, pc = np.mean([pz, NF[SP[sp]][(c["id"], d)]], 0)
             out.append((c["id"], d, row, "SUPPORT" if pe >= pc else "CONTRADICT"))
     return out
 
