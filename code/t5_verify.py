@@ -89,6 +89,8 @@ def finetune_nli(name):
             loss = torch.nn.functional.cross_entropy(m.m(**enc).logits, torch.tensor([x[2] for x in b], device=DEV))
             loss.backward(), opt.step(), opt.zero_grad()
     m.m.eval()
+    out = os.path.join(CACHE, "nli-ft")
+    m.m.save_pretrained(out), m.tok.save_pretrained(out)
     return m
 
 

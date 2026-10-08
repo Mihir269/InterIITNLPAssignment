@@ -20,19 +20,25 @@ from common import CACHE, PRED, load_claims
 ap = argparse.ArgumentParser()
 ap.add_argument("--nli", default="nli_probs_71cec93cb3.pkl,nli_probs_70ef28d906.pkl", help="comma list of NLI caches to average")
 ap.add_argument("--ce", default="ce_ncbi_MedCPT-Cross-Encoder_expanded_{}30.json")
+ap.add_argument("--run", default="hybrid_runs.json", help="candidate run file in cache/ (top-3 per claim are verified)")
 ap.add_argument("--tag", default="")
 args = ap.parse_args()
 
 val, ev = load_claims("val"), load_claims("eval")
-H = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))
-CE = {sp: json.load(open(os.path.join(CACHE, args.ce.format(sp)))) for sp in ["val", "eval"]}
+H = json.load(open(os.path.join(CACHE, args.run)))
+HY = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))  # cross-encoder scores are aligned with hybrid ranks 1..30
+CE = {}
+for sp in ["val", "eval"]:
+    raw = json.load(open(os.path.join(CACHE, args.ce.format(sp))))
+    CE[sp] = {cid: dict(zip(HY[sp][cid][0][:len(sc)], sc)) for cid, sc in raw.items()}
 NL = [pickle.load(open(os.path.join(CACHE, f), "rb")) for f in args.nli.split(",")]
 NLI = {"val": [p[0] for p in NL], "eval": [p[1] for p in NL]}
 gold = {c["id"]: {(int(e["doc_id"]), e["label"]) for e in c["evidence"]} for c in val}
 
 
 def predict(c, sp, s, n, rel):
-    dl, sc = H[sp][str(c["id"])][0][:3], np.array(CE[sp][str(c["id"])][:3])
+    dl = H[sp][str(c["id"])][0][:3]
+    sc = np.array([CE[sp][str(c["id"])][d] for d in dl])
     rows = []
     for i in np.argsort(-sc)[:n]:
         if sc[i] >= s and sc[i] >= sc.max() - rel:
@@ -49,7 +55,7 @@ def prf(claims, sp, g):
     return dict(precision=P, recall=R, f1=2 * P * R / max(P + R, 1e-9))
 
 
-allsc = np.concatenate([CE["val"][str(c["id"])][:3] for c in val])
+allsc = np.array([CE["val"][str(c["id"])][d] for c in val for d in H["val"][str(c["id"])][0][:3]])
 GRID = list(itertools.product([float(x) for x in np.quantile(allsc, np.arange(0.3, 0.95, 0.025))], [1, 2, 3], [0.5, 1, 2, 100]))
 best = max(GRID, key=lambda g: prf(val, "val", g)["f1"])
 mv = prf(val, "val", best)
@@ -110,7 +116,7 @@ with open(os.path.join(PRED, f"t5_val_errors{args.tag}.csv"), "w", newline="") a
     w.writerow(["claim_id", "category"])
     for cid in sorted(errors):
         w.writerow([cid, errors[cid]])
-json.dump(dict(scorer="ce-gated", ce=args.ce, model="ncbi/MedCPT-Cross-Encoder (evidence selection) + mean of zero-shot and fine-tuned "
+json.dump(dict(scorer="ce-gated", ce=args.ce, run=args.run, model="ncbi/MedCPT-Cross-Encoder (evidence selection) + mean of zero-shot and fine-tuned "
                                     "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli (label)",
                s=best[0], n=best[1], rel=best[2], val=mv, cv_f1=cv, errors=cnt, n_errors=len(errors)),
           open(os.path.join(CACHE, f"t5_stats_v2{args.tag}.json"), "w"), indent=1)
