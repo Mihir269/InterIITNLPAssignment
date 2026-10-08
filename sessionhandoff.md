@@ -29,7 +29,7 @@ All 12 prediction files, `results.json`, `report.md` and `code/README.md` pass `
 | 3 hybrid | min-max fusion: BM25 over abstracts + citing training claims (1.0), bge-base (0.5), MedCPT (0.25) | 0.949 |
 | 3 rerank | MedCPT-Cross-Encoder fine-tuned on training claims, top-30, doc text = citing training claims + abstract | 0.968 |
 | 4 | bge-base fine-tuned, random / hard negatives (best epoch on val) | 0.906 / 0.920 |
-| 5 | mean of two cross-encoders picks evidence among hybrid top-3; mean of zero-shot + fine-tuned NLI gives the label | F1 0.771 (5-fold CV 0.751) |
+| 5 | mean of two cross-encoders picks evidence among t3_rerank top-3; mean of zero-shot + fine-tuned NLI gives the label | F1 0.763 (5-fold CV 0.763) |
 
 The user chose this version over a "by-the-book" one (plain-BM25 hybrid ≈0.915, zero-shot plain-text rerank ≈0.913,
 NLI-only verifier F1 0.627) after we discussed that the training-claim expansion and the cross-encoder evidence step
@@ -92,6 +92,14 @@ tuned threshold is optimistic by ~0.015 F1, and nDCG differences under ~0.01 are
 F1 0.627 → 0.690 on top of NLI-only). It bypasses the retriever and NLI classifier the task asks for. Outputs are in
 `exploration/`.
 
+### Phase 5 — Error analysis and the last improvement
+`error_analysis.md` (`code/analyze_errors.py`): claim-level confusion, every error listed, error rate by claim property
+and by topic (k-means on bge-base claim embeddings). Significant weak spots: multi-document claims, claims with no
+training twin, molecular/cell-biology topics. Group-specific thresholds overfit (`explore_groups.py`). The usable finding
+was the candidate pool: verifying over the t3_rerank top 3 instead of the hybrid's (118 vs 112 of 124 gold abstracts
+reachable) raised 5-fold CV F1 0.751 → 0.763 and cut error claims 43 → 40. Adopted. The fine-tuned NLI model is now
+saved in `cache/nli-ft`.
+
 ## 4. Bugs and operational lessons
 
 - **DeBERTa NLI checkpoint loads as fp16** (recent `transformers` keeps the stored dtype): fine-tuning gave NaN after one
@@ -121,7 +129,7 @@ on this CPU container (approximate times):
 | Cross-encoder scores | `python ce_scores.py --splits val,eval` | 1.2 h |
 | Fine-tune cross-encoder + rescore | `python ft_cross_encoder.py && python ce_scores.py --model ../cache/medcpt-ce-ft --splits val,eval` | 3–4 h |
 | Final rerank | `python make_t3_rerank.py ../cache/medcpt-ce-ft` | 1 min |
-| Final verifier | `python make_ce_ensemble.py && python t5_verify_v2.py --ce "ce_ensemble_expanded_{}30.json"` | 1 min |
+| Final verifier | `python make_cand_runs.py`, NLI zero-shot + fine-tuned on `rerank_cand_runs.json` (2.5 h), `python make_ce_ensemble.py`, `python t5_verify_v2.py --run rerank_cand_runs.json --nli <zs>,<ft> --ce "ce_ensemble_expanded_{}30.json"` | 2.5 h |
 | results.json | `T5_STATS=t5_stats_v2.json python make_results.py` | instant |
 
 On a GPU all of this takes well under an hour (`models.py` picks CUDA automatically).
@@ -137,7 +145,7 @@ On a GPU all of this takes well under an hour (`models.py` picks CUDA automatica
 
 ## 7. If work continues
 
-The most promising next step (report Q5): 37 of the 43 remaining verification errors are about *how many* abstracts
-to return (missing second documents, NEI false alarms, misses); only 6 have the wrong label. A small claim-level model
+The most promising next step (report Q5): 32 of the 40 remaining verification errors are about *how many* abstracts
+to return (misses, missing second documents, NEI false alarms); only 6 have the wrong label. A small claim-level model
 trained on training claims to predict 0/1/2 abstracts from cross-encoder and NLI features should help most. It needs
 cross-encoder and NLI scores for the training claims first (≈2 h on CPU).

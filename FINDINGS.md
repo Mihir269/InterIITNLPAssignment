@@ -22,11 +22,12 @@ Every submitted file passes `check_format.py`.
 | fine-tuned NLI (training rationales + mined neutrals) | 0.624 | 0.629 | 0.627 | 0.608 |
 | MedCPT cross-encoder selects evidence, NLI ensemble labels it | 0.711 | 0.774 | 0.741 | 0.741 |
 | same with the fine-tuned cross-encoder only | 0.769 | 0.750 | 0.759 | 0.737 |
-| **submitted: mean of both cross-encoders selects evidence, NLI ensemble labels it** | 0.768 | 0.774 | **0.771** | **0.751** |
+| mean of both cross-encoders selects evidence among hybrid top-3, NLI ensemble labels it | 0.768 | 0.774 | 0.771 | 0.751 |
+| **submitted: same, but candidates = t3_rerank top-3 (NLI recomputed)** | 0.760 | 0.766 | **0.763** | **0.763** |
 
-Errors (submitted verifier): 43/162 validation claims; retrieval_miss 4, entity_mismatch 14, needs_multiple_docs 10,
-other 9, numerical 5, negation 1. By outcome: 15 partially right (missing/extra abstract), 14 NEI false alarms
-(30 with NLI alone), 8 misses, 6 wrong label.
+Errors (submitted verifier): 40/162 validation claims; retrieval_miss 2, entity_mismatch 11, needs_multiple_docs 6,
+other 13, numerical 6, negation 2. By outcome: 11 misses, 11 partially right (missing/extra abstract), 10 NEI false
+alarms (30 with NLI alone), 6 wrong label, 2 wrong abstract. Full breakdown: `error_analysis.md`.
 
 ## What mattered (in order of size)
 
@@ -57,6 +58,7 @@ other 9, numerical 5, negation 1. By outcome: 15 partially right (missing/extra 
 | Adding fine-tuned bi-encoder to the hybrid | +0.003, p=0.30 (but 0.915 → 0.926 without expansion) |
 | Dense claim-to-claim kNN in the hybrid | +0.0025, p=0.12 (0.915 → 0.942 without expansion: same signal as the expansion) |
 | Retrieval-score gate for NEI claims | CV F1 0.571 vs 0.593 (overfits) |
+| Group-specific thresholds (twin / topic), SUPPORT-CONTRADICT bias | CV F1 0.745 / 0.748 / 0.743 vs 0.751 (overfit) |
 
 ## Bugs found on the way
 

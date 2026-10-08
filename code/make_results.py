@@ -32,7 +32,8 @@ r["task4"] = dict(base_model=t4["base"], val_ndcg10_random_negatives=round(t4["r
 if t5.get("scorer") == "ce-gated":
     sel = ("mean of z-scored MedCPT-Cross-Encoder and our fine-tuned copy (the t3_rerank model)" if "ensemble" in t5.get("ce", "")
            else "ncbi/MedCPT-Cross-Encoder")
-    r["task5"] = dict(retriever_used=f"t3_hybrid top-3; evidence selected by cross-encoder score ({sel})",
+    cand = "t3_rerank top-3 (best val nDCG@10)" if "rerank" in t5.get("run", "") else "t3_hybrid top-3"
+    r["task5"] = dict(retriever_used=f"{cand}; evidence selected by cross-encoder score ({sel})",
                       nli_model="MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli: mean of zero-shot and fine-tuned (2 epochs on "
                                 "training-claim rationales) probabilities; label only, the cross-encoder decides which abstracts are evidence",
                       zero_shot_or_finetuned="finetuned (ensembled with zero-shot)", val_f1=round(t5["val"]["f1"], 4))
