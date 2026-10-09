@@ -1,5 +1,10 @@
 """Exploration that needs no pretrained weights: doc expansion with training claims,
 RM3 feedback, LSA 'dense' retrieval, and BM25+LSA fusion. All tuned on validation only."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import numpy as np
 import scipy.sparse as sp
 from sklearn.decomposition import TruncatedSVD

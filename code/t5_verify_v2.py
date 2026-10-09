@@ -18,9 +18,10 @@ import numpy as np
 from common import CACHE, PRED, load_claims
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--nli", default="nli_probs_71cec93cb3.pkl,nli_probs_70ef28d906.pkl", help="comma list of NLI caches to average")
-ap.add_argument("--ce", default="ce_ncbi_MedCPT-Cross-Encoder_expanded_{}30.json")
-ap.add_argument("--run", default="hybrid_runs.json", help="candidate run file in cache/ (top-3 per claim are verified)")
+ap.add_argument("--nli", default="nli_probs_nli_rerank_cand_runs.pkl,nli_probs_nli-ft_rerank_cand_runs.pkl",
+                help="comma list of NLI probability caches (written by t5_verify.py) to average")
+ap.add_argument("--ce", default="ce_ensemble_expanded_{}30.json", help="cross-encoder scores (make_ce_ensemble.py)")
+ap.add_argument("--run", default="rerank_cand_runs.json", help="candidate run file in cache/ (top-3 per claim are verified)")
 ap.add_argument("--tag", default="")
 args = ap.parse_args()
 

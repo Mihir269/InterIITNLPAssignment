@@ -1,4 +1,11 @@
-"""Does adding the Task 4 fine-tuned bi-encoder to the hybrid help? min-max fusion grid on validation."""
+"""Does adding the Task 4 fine-tuned bi-encoder to the hybrid help? min-max fusion grid on validation.
+Note: the reported result (+0.003, p=0.30; 0.926 without expansion) used the bge-small fine-tuned scores. cache/ft_*.npy
+now hold the submitted bge-base runs; the bge-small matrices are kept as cache/ft_*_small.npy."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import itertools
 import json
 import os

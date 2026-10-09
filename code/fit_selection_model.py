@@ -60,8 +60,8 @@ R = json.load(open(os.path.join(CACHE, "rerank_cand_runs.json")))
 HY = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))
 ZS = {sp: {cid: dict(zip(HY[sp][cid][0][:30], s)) for cid, s in
            json.load(open(os.path.join(CACHE, f"ce_ncbi_MedCPT-Cross-Encoder_expanded_{sp}30.json"))).items()} for sp in ["val", "eval"]}
-NZ = pickle.load(open(os.path.join(CACHE, "nli_probs_49480a5abf.pkl"), "rb"))
-NF = pickle.load(open(os.path.join(CACHE, "nli_probs_5f8da612a9.pkl"), "rb"))
+NZ = pickle.load(open(os.path.join(CACHE, "nli_probs_nli_rerank_cand_runs.pkl"), "rb"))
+NF = pickle.load(open(os.path.join(CACHE, "nli_probs_nli-ft_rerank_cand_runs.pkl"), "rb"))
 SP = {"val": 0, "eval": 1}
 
 

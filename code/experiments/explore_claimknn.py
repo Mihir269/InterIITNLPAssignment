@@ -1,5 +1,10 @@
 """Dense claim-to-claim kNN: score(doc) = max cosine(claim, training claims whose gold evidence is doc).
 A dense analogue of the BM25 document expansion. Fused into the hybrid; bootstrap vs submitted hybrid."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import itertools
 import os
 

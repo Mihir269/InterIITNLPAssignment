@@ -3,6 +3,11 @@ Per candidate (t3_rerank top-3): logistic regression on candidate features (cros
 claim's best, NLI ensemble confidence and margin) + claim features (best/second score, training twin, claim length).
 Selected = candidates with p >= threshold (threshold tuned on the training folds); label from the NLI ensemble as before.
 Compared with the submitted threshold rule under the same folds (5-fold CV F1 0.763)."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import itertools
 import json
 import os
@@ -20,7 +25,7 @@ H = json.load(open(os.path.join(CACHE, "rerank_cand_runs.json")))["val"]
 HY = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))["val"]
 raw = json.load(open(os.path.join(CACHE, "ce_ensemble_expanded_val30.json")))
 CE = {cid: dict(zip(HY[cid][0][:30], sc)) for cid, sc in raw.items()}
-NL = [pickle.load(open(os.path.join(CACHE, f), "rb"))[0] for f in ["nli_probs_49480a5abf.pkl", "nli_probs_5f8da612a9.pkl"]]
+NL = [pickle.load(open(os.path.join(CACHE, f), "rb"))[0] for f in ["nli_probs_nli_rerank_cand_runs.pkl", "nli_probs_nli-ft_rerank_cand_runs.pkl"]]
 gold = {c["id"]: {(int(e["doc_id"]), e["label"]) for e in c["evidence"]} for c in val}
 gdoc = {k: {d for d, _ in v} for k, v in gold.items()}
 words = lambda s: set(re.findall(r"[a-z0-9]+", s.lower()))

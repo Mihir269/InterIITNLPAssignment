@@ -1,6 +1,6 @@
 # Session handoff — Inter-IIT NLP selection bootcamp (SciFact)
 
-Branch: `claude/tender-feynman-j3yelk` (all work pushed). Detailed numbers: `FINDINGS.md`. Reproduction commands:
+Branch: `claude/tender-feynman-j3yelk` (all work pushed). Detailed numbers: `docs/FINDINGS.md`. Reproduction commands:
 `code/README.md`. Submission answers: `report.md`. This file explains what was done, in what order, and why.
 
 ---
@@ -19,7 +19,7 @@ task's recipe.
 ## 2. Final state (the one submitted version)
 
 All 12 prediction files, `results.json`, `report.md` and `code/README.md` pass `check_format.py` ("All good").
-`./make_submission.sh <rollno>` writes the roll number into `results.json` and builds `<rollno>_nlp_bootcamp.zip`
+`./make_submission.sh <rollno>` writes the roll number into `results.json` and builds `submission/<rollno>_nlp_bootcamp.zip`
 (code/, predictions/, results.json, report.md only), then runs the checker on the zip.
 
 | Task | Submitted system | Validation |
@@ -80,7 +80,7 @@ Biggest wins, in order:
 3. **Task 4 with bge-base:** 0.906 / 0.920. With random negatives, validation peaked at epoch 1 and fell to 0.891
    while training-claim nDCG kept rising — the overfitting evidence used for Q3.
 
-Rejected (documented in FINDINGS.md): adding the fine-tuned bi-encoder or a dense claim-to-claim kNN to the hybrid
+Rejected (documented in docs/FINDINGS.md): adding the fine-tuned bi-encoder or a dense claim-to-claim kNN to the hybrid
 (≈ +0.003, noise, same signal as the expansion), a retrieval-score gate for NEI claims (overfits under CV), the
 fine-tuned cross-encoder alone for verification (CV 0.737 vs 0.741).
 
@@ -90,16 +90,16 @@ tuned threshold is optimistic by ~0.015 F1, and nDCG differences under ~0.01 are
 
 **Kept out of the submission:** the paired-claim prior (copy a training twin's abstracts with flipped labels:
 F1 0.627 → 0.690 on top of NLI-only). It bypasses the retriever and NLI classifier the task asks for. Outputs are in
-`exploration/`.
+`experiments/task5_verification/`.
 
 ### Phase 5 — Error analysis and the last improvement
-`error_analysis.md` (`code/analyze_errors.py`): claim-level confusion, every error listed, error rate by claim property
+`docs/ERROR_ANALYSIS.md` (`code/experiments/analyze_errors.py`): claim-level confusion, every error listed, error rate by claim property
 and by topic (k-means on bge-base claim embeddings). Significant weak spots: multi-document claims, claims with no
-training twin, molecular/cell-biology topics. Group-specific thresholds overfit (`explore_groups.py`). The usable finding
+training twin, molecular/cell-biology topics. Group-specific thresholds overfit (`code/experiments/explore_groups.py`). The usable finding
 was the candidate pool: verifying over the t3_rerank top 3 instead of the hybrid's (118 vs 112 of 124 gold abstracts
 reachable) raised 5-fold CV F1 0.751 → 0.763 and cut error claims 43 → 40. Adopted. The fine-tuned NLI model is now
 saved in `cache/nli-ft`. A learned "how many abstracts" model (trained on training claims with unbiased zero-shot
-features) reached only 0.745 held-out (0.757 CV) and was not adopted; see `error_analysis.md` §8.
+features) reached only 0.745 held-out (0.757 CV) and was not adopted; see `docs/ERROR_ANALYSIS.md` §8.
 
 ## 4. Bugs and operational lessons
 
@@ -110,12 +110,12 @@ features) reached only 0.745 held-out (0.757 CV) and was not adopted; see `error
 - **`pkill -f <pattern>` killed its own shell** three times because the pattern was in the shell's own command line.
   Use PIDs or a bracketed pattern (`[t]4_finetune`).
 - **Background tool tasks stop after 2 hours** and a container restart killed one run. Long jobs were launched
-  detached (`setsid nohup … & disown`) with `code/run_bg.sh <logname> <script> <args>`, which writes
+  detached (`setsid nohup … & disown`) with `code/tools/run_bg.sh <logname> <script> <args>`, which writes
   `cache/<logname>.log` ending in `EXIT <code>`; short watchers poll for that line.
 
 ## 5. What is *not* in git and how to rebuild it
 
-`data/` and `cache/` are git-ignored. `data/` comes from `unzip data-*.zip`. `cache/` holds the score matrices, NLI
+`data/` and `cache/` are git-ignored. `data/` comes from `unzip assignment/data-*.zip`. `cache/` holds the score matrices, NLI
 probabilities, cross-encoder scores and fine-tuned models that produced the submitted files. To rebuild from scratch
 on this CPU container (approximate times):
 
@@ -139,10 +139,10 @@ On a GPU all of this takes well under an hour (`models.py` picks CUDA automatica
 
 - `code/` — `common.py` (data, metrics, TREC writer), `bm25.py`, `models.py` (bi-encoder, cross-encoder, NLI
   wrappers), task scripts `t1`–`t5`, final-stage scripts (`ce_scores.py`, `ft_cross_encoder.py`, `make_t3_rerank.py`,
-  `make_ce_ensemble.py`, `t5_verify_v2.py`, `make_results.py`), exploration scripts (`explore_*.py`), `run_bg.sh`.
-- `predictions/` — the submitted files. `exploration/` — alternative outputs and logs (not submitted).
+  `make_ce_ensemble.py`, `t5_verify_v2.py`, `make_results.py`), exploration scripts in `code/experiments/`, `code/tools/run_bg.sh`.
+- `predictions/` — the submitted files. `experiments/` — alternative outputs and logs, grouped by task (not submitted).
 - `report.md` — Q1–Q5 (each ≤ 100 words). `results.json` — filled from saved stats by `make_results.py`.
-- `FINDINGS.md` — all numbers, including rejected ideas. `make_submission.sh` — builds and checks the zip.
+- `docs/FINDINGS.md` — all numbers, including rejected ideas. `make_submission.sh` — builds and checks the zip into `submission/`.
 
 ## 7. If work continues
 

@@ -15,7 +15,7 @@ from models import CrossEncoder
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--reranker", default="BAAI/bge-reranker-base")
-ap.add_argument("--ks", default="10,20,30,50,100")
+ap.add_argument("--ks", default="10,20,30,50")
 ap.add_argument("--docexp", type=int, default=1, help="1: also allow BM25 over abstracts expanded with train claims")
 args = ap.parse_args()
 

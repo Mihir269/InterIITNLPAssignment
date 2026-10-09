@@ -186,6 +186,10 @@ else:
         nli = finetune_nli(args.nli_model) if args.scorer == "nli-ft" else NLI(args.nli_model)
         Pv, Pe = nli_scores(nli, val, "val"), nli_scores(nli, ev, "eval")
         pickle.dump((Pv, Pe), open(cpath, "wb"))
+    # stable, machine-independent copy used by t5_verify_v2.py: nli_probs_<scorer>_<run file name>.pkl
+    stable = os.path.join(CACHE, f"nli_probs_{args.scorer}_{os.path.splitext(os.path.basename(args.run))[0]}.pkl")
+    if not os.path.exists(stable):
+        pickle.dump((Pv, Pe), open(stable, "wb"))
     model_name = args.nli_model
 
 grid = []

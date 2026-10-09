@@ -1,6 +1,11 @@
 """Why did the cross-encoder hurt, and what fixes it? On validation, rerank the hybrid's top-K with several
 cross-encoders, with plain vs training-claim-expanded document text, and with score fusion
 (minmax(first stage) + w * minmax(cross-encoder)) instead of pure reranker order. Scores are cached."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import json
 import os
 import sys

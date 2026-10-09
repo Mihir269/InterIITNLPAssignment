@@ -1,4 +1,5 @@
 data/
 cache/
 __pycache__/
-*_nlp_bootcamp.zip
+# generated submission zips at the repo root (the final one is kept in submission/)
+/*_nlp_bootcamp.zip

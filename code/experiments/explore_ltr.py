@@ -1,5 +1,10 @@
 """More weight-free ideas: sentence-level BM25 (max over sentences), title field, and a learning-to-rank
 model (logistic regression on pairwise-free pointwise features) trained on training claims, reranking top-50."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 

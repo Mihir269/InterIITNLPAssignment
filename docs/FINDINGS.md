@@ -27,7 +27,7 @@ Every submitted file passes `check_format.py`.
 
 Errors (submitted verifier): 40/162 validation claims; retrieval_miss 2, entity_mismatch 11, needs_multiple_docs 6,
 other 13, numerical 6, negation 2. By outcome: 11 misses, 11 partially right (missing/extra abstract), 10 NEI false
-alarms (30 with NLI alone), 6 wrong label, 2 wrong abstract. Full breakdown: `error_analysis.md`.
+alarms (30 with NLI alone), 6 wrong label, 2 wrong abstract. Full breakdown: `docs/ERROR_ANALYSIS.md`.
 
 ## What mattered (in order of size)
 
@@ -72,7 +72,7 @@ alarms (30 with NLI alone), 6 wrong label, 2 wrong abstract. Full breakdown: `er
 If a training claim is a near-duplicate (word Jaccard ≥ 0.7) of the test claim, copy its gold abstracts with flipped
 labels (30/35 val pairs with evidence flip; 18/18 NEI twins stay NEI). On top of fine-tuned NLI: F1 0.627 → 0.690
 (CV 0.682). Left out because it bypasses the retriever and the NLI classifier the task asks for. Files in
-`exploration/`.
+`experiments/task5_verification/02_zero_shot_nli_plus_pair_prior/` and `03_finetuned_nli/`.
 
 ## Caveats
 

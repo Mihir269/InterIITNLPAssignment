@@ -1,6 +1,11 @@
 """Can the error-analysis findings be used? 5-fold CV on validation for the submitted verifier (t5_verify_v2 logic) with
 (a) separate thresholds for claims with / without a near-duplicate training claim, (b) separate thresholds for clinical vs
 molecular topics, (c) a bias term on the SUPPORT/CONTRADICT decision. Both group features are known at test time."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import itertools
 import json
 import os
@@ -16,7 +21,7 @@ from common import CACHE, SEED, load_claims
 tr, val, ev = load_claims("train"), load_claims("val"), load_claims("eval")
 H = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))["val"]
 CE = json.load(open(os.path.join(CACHE, "ce_ensemble_expanded_val30.json")))
-NL = [pickle.load(open(os.path.join(CACHE, f), "rb"))[0] for f in ["nli_probs_71cec93cb3.pkl", "nli_probs_70ef28d906.pkl"]]
+NL = [pickle.load(open(os.path.join(CACHE, f), "rb"))[0] for f in ["nli_probs_nli_hybrid_runs.pkl", "nli_probs_nli-ft_hybrid_runs.pkl"]]
 gold = {c["id"]: {(int(e["doc_id"]), e["label"]) for e in c["evidence"]} for c in val}
 words = lambda s: set(re.findall(r"[a-z0-9]+", s.lower()))
 twin = {c["id"]: max(len(words(c["claim"]) & words(t["claim"])) / len(words(c["claim"]) | words(t["claim"])) for t in tr) >= 0.6 for c in val}

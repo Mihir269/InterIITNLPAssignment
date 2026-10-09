@@ -9,8 +9,10 @@ from common import CACHE, PRED, SEED, evaluate, fmt, load_claims, per_claim, qre
 
 import sys
 
-MODEL = sys.argv[1] if len(sys.argv) > 1 else "ncbi/MedCPT-Cross-Encoder"
-LABEL = sys.argv[2] if len(sys.argv) > 2 else MODEL
+# default = the submitted reranker: MedCPT-Cross-Encoder fine-tuned by ft_cross_encoder.py (scores from ce_scores.py)
+MODEL = sys.argv[1] if len(sys.argv) > 1 else "../cache/medcpt-ce-ft"
+LABEL = sys.argv[2] if len(sys.argv) > 2 else (
+    "ncbi/MedCPT-Cross-Encoder fine-tuned 2 epochs on training claims (BCE, BM25 hard negatives)" if MODEL.endswith("medcpt-ce-ft") else MODEL)
 val, ev = load_claims("val"), load_claims("eval")
 qv = qrels(val)
 H = json.load(open(os.path.join(CACHE, "hybrid_runs.json")))
