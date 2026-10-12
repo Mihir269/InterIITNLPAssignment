@@ -15,6 +15,4 @@ pipeline (see `code/README.md`); most take seconds to minutes because they reuse
 | `explore_count_model.py` | Can a learned evidence-selection model trained on validation (nested CV) beat thresholds? | 0.745–0.747 vs 0.763 |
 | `data_analysis.py`, `data_analysis_figures.py` | Final data analysis: dataset, retrieval depth, verifier behaviour, eval vs validation | Numbers and 9 figures in `docs/DATA_ANALYSIS.md` |
 | `selection_bias_check.py` | How optimistic are validation scores after choosing settings on validation? | Hybrid weights +0.007, rerank depth +0.005 (CV vs in-sample) |
-
-The training-claim version of the learned selection model (`build_train_features.py`, `fit_selection_model.py`) is in
-`code/` because report Q5 cites it.
+| `build_train_features.py` → `fit_selection_model.py` | Report Q5: learned evidence selection trained on the 647 training claims (unbiased zero-shot features; ~1.5 h on CPU) | Held-out validation 0.745 (CV 0.757) vs 0.763 for the submitted threshold rule — not adopted |

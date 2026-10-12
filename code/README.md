@@ -48,7 +48,6 @@ submitted files byte for byte from the cached scores. Step 9 is independent of s
 | `ce_scores.py`, `ft_cross_encoder.py`, `make_t3_rerank.py` | Cross-encoder scoring, fine-tuning, final rerank |
 | `make_bm25_runs.py`, `make_hybrid_runs.py`, `make_cand_runs.py`, `make_ce_ensemble.py` | Intermediate run/score files |
 | `make_results.py` | Writes `results.json` from cached stats |
-| `build_train_features.py`, `fit_selection_model.py` | Report Q5 experiment: learned evidence selection trained on training claims (0.745 held-out vs 0.763 for the submitted rule; not used in the submission) |
 
 ## How the final system works (short)
 
@@ -67,5 +66,7 @@ submitted files byte for byte from the cached scores. Step 9 is independent of s
 - During cross-encoder fine-tuning, a training claim never sees its own text inside the abstract it is matched against
   (leave-one-out expansion).
 
-Exploration scripts for ideas that were tried and not used (RM3, LSA, learning-to-rank, reranker comparison, error
-analysis, …) are in the GitHub repository under `code/experiments/`; they are not needed to reproduce the submission.
+Full repository, with every experiment, its outputs and the documentation: https://github.com/Mihir269/InterIITNLPAssignment
+Exploration scripts for ideas that were tried and not used (RM3, LSA, learning-to-rank, reranker comparison, the
+learned evidence-selection model cited in report Q5, error and data analysis, …) are there under `code/experiments/`;
+they are not needed to reproduce the submitted files.

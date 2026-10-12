@@ -2,6 +2,11 @@
 evaluate once on validation (held out), apply to eval. Candidates on val/eval = t3_rerank top-3 (as submitted); features
 use only zero-shot models on both sides. Label = NLI ensemble (zero-shot + fine-tuned) as in t5_verify_v2.
 Selection threshold / max-k: (a) tuned on training claims -> clean held-out val score; (b) tuned on val -> 5-fold CV."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import argparse
 import csv
 import itertools

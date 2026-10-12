@@ -2,6 +2,11 @@
 leave-one-out expanded abstracts (citing training claims except the claim itself) on each claim's plain-BM25 top-20,
 then zero-shot NLI (max over sentences + whole abstract) on the cross-encoder's top 3. Fine-tuned models are not used
 because they were trained on these claims. Writes cache/train_sel_features.json."""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # shared modules live in code/
+
 import json
 import os
 import time
