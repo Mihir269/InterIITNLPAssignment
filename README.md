@@ -95,8 +95,7 @@ labels; F1 0.627 → 0.690 on top of NLI alone). It bypasses the retriever and N
 │   ├── WALKTHROUGH.md         ← in-depth explanation of every idea: intuition, implementation, result, why
 │   ├── FINDINGS.md            ← all numbers, including rejected ideas
 │   ├── ERROR_ANALYSIS.md      ← confusion matrix, every validation error, error rate by claim type and topic
-│   ├── DATA_ANALYSIS.md       ← dataset statistics, retrieval depth analysis, verifier behaviour, eval vs validation (9 figures)
-│   └── SESSION_HANDOFF.md     ← chronological log of the work, decisions, and how to rebuild cached state
+│   └── DATA_ANALYSIS.md       ← dataset statistics, retrieval depth analysis, verifier behaviour, eval vs validation (9 figures)
 ├── submission/
 │   └── 24b2443_nlp_bootcamp.zip   ← the submitted zip (passes check_format.py)
 ├── assignment/                ← problem statement, results template, data zip (as provided)
