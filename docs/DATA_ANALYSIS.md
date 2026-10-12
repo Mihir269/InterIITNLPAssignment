@@ -6,7 +6,7 @@ are drawn by `code/experiments/data_analysis_figures.py`. Retrieval and verifica
 split (162 claims, 106 with at least one gold abstract) unless stated otherwise.
 
 Contents: [1 Dataset](#1-dataset) · [2 Retrieval](#2-retrieval) · [3 Verification](#3-verification) ·
-[4 Eval predictions](#4-eval-predictions-vs-validation) · [5 What it means](#5-what-it-means)
+[4 Eval predictions](#4-eval-predictions-vs-validation) · [5 Overfitting check](#5-overfitting-check) · [6 What it means](#6-what-it-means)
 
 ---
 
@@ -241,7 +241,33 @@ validation it improved 13 claims and hurt 7 (`FINDINGS.md`), so most of those ch
 
 ---
 
-## 5. What it means
+## 5. Overfitting check
+
+Three kinds of overfitting were checked separately.
+
+1. **Models memorising training claims** — every fine-tuned model was evaluated on validation after each epoch and the
+   best epoch kept. bge-base with random negatives did overfit (0.906 → 0.891 after epoch 1) and was stopped at epoch 1;
+   the cross-encoder was still improving at its last epoch (0.953 → 0.962 → 0.963).
+2. **Leakage** — expansion, fine-tuning and hard negatives use training claims only; during cross-encoder training a
+   claim never sees its own text (leave-one-out). Validation is used only to choose settings; eval labels are never seen.
+3. **Overfitting to validation by choosing settings on it** — measured by re-choosing each setting on 4/5 of the
+   validation claims and scoring the held-out 1/5 (`code/experiments/selection_bias_check.py`; retrieval averaged over
+   20 random fold splits):
+
+| Setting chosen on validation | Reported (in-sample) | Cross-validated estimate | Optimism |
+|---|---|---|---|
+| Hybrid weights (best of 112 configurations) | 0.949 | 0.942 ± 0.004 | +0.007 |
+| Rerank depth k | 0.968 | 0.963 | +0.005 |
+| Verification thresholds | F1 0.763 | 0.763 | 0.000 |
+
+The selection optimism is below 0.01 nDCG and zero for verification — small next to the gains the design rests on
+(expansion +0.063, p < 0.001; cross-encoder gate +0.13 F1 under cross-validation). Choices *between* whole experiments
+were also made on validation; to limit that, an idea was adopted only if it improved under cross-validation or a
+bootstrap test, and six ideas that did not were rejected. Separately, eval may score slightly below validation for a
+non-overfitting reason: its top abstracts are less often cited by training claims (§4), and on such claims the rerank
+scores 0.945 rather than 0.985.
+
+## 6. What it means
 
 1. **The data rewards using the training claims.** Only 7% of the corpus is ever evidence, 62 of 112 validation gold
    abstracts are shared with training claims, and a third of every split has a near-twin. This explains why expansion

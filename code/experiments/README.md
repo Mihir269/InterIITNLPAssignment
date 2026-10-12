@@ -14,6 +14,7 @@ pipeline (see `code/README.md`); most take seconds to minutes because they reuse
 | `explore_groups.py` | Do separate thresholds per claim group (training twin, topic) or a label-bias term help? | CV 0.745 / 0.748 / 0.743 vs 0.751 — overfit |
 | `explore_count_model.py` | Can a learned evidence-selection model trained on validation (nested CV) beat thresholds? | 0.745–0.747 vs 0.763 |
 | `data_analysis.py`, `data_analysis_figures.py` | Final data analysis: dataset, retrieval depth, verifier behaviour, eval vs validation | Numbers and 9 figures in `docs/DATA_ANALYSIS.md` |
+| `selection_bias_check.py` | How optimistic are validation scores after choosing settings on validation? | Hybrid weights +0.007, rerank depth +0.005 (CV vs in-sample) |
 
 The training-claim version of the learned selection model (`build_train_features.py`, `fit_selection_model.py`) is in
 `code/` because report Q5 cites it.
