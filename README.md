@@ -95,6 +95,7 @@ labels; F1 0.627 → 0.690 on top of NLI alone). It bypasses the retriever and N
 │   ├── WALKTHROUGH.md         ← in-depth explanation of every idea: intuition, implementation, result, why
 │   ├── FINDINGS.md            ← all numbers, including rejected ideas
 │   ├── ERROR_ANALYSIS.md      ← confusion matrix, every validation error, error rate by claim type and topic
+│   ├── DATA_ANALYSIS.md       ← dataset statistics, retrieval depth analysis, verifier behaviour, eval vs validation (9 figures)
 │   └── SESSION_HANDOFF.md     ← chronological log of the work, decisions, and how to rebuild cached state
 ├── submission/
 │   └── 24b2443_nlp_bootcamp.zip   ← the submitted zip (passes check_format.py)
@@ -124,6 +125,7 @@ Pretrained models are downloaded from the HuggingFace Hub. On a 4-vCPU machine t
 | Why each design choice was made, step by step | `docs/WALKTHROUGH.md` |
 | Every number, including failed experiments | `docs/FINDINGS.md`, `experiments/README.md` |
 | Which claims the system gets wrong and why | `docs/ERROR_ANALYSIS.md` |
+| Statistics and charts on the data, retrieval, verifier and eval predictions | `docs/DATA_ANALYSIS.md` |
 | How to run each step | `code/README.md` |
 
 ## Limitations

@@ -13,6 +13,7 @@ pipeline (see `code/README.md`); most take seconds to minutes because they reuse
 | `analyze_errors.py` | Where does the verifier fail? Writes `docs/ERROR_ANALYSIS.md` sections 1–6 | 40/162 errors; 32 are about how many abstracts to return |
 | `explore_groups.py` | Do separate thresholds per claim group (training twin, topic) or a label-bias term help? | CV 0.745 / 0.748 / 0.743 vs 0.751 — overfit |
 | `explore_count_model.py` | Can a learned evidence-selection model trained on validation (nested CV) beat thresholds? | 0.745–0.747 vs 0.763 |
+| `data_analysis.py`, `data_analysis_figures.py` | Final data analysis: dataset, retrieval depth, verifier behaviour, eval vs validation | Numbers and 9 figures in `docs/DATA_ANALYSIS.md` |
 
 The training-claim version of the learned selection model (`build_train_features.py`, `fit_selection_model.py`) is in
 `code/` because report Q5 cites it.
