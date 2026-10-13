@@ -66,7 +66,6 @@ submitted files byte for byte from the cached scores. Step 9 is independent of s
 - During cross-encoder fine-tuning, a training claim never sees its own text inside the abstract it is matched against
   (leave-one-out expansion).
 
-Full repository, with every experiment, its outputs and the documentation: https://github.com/Mihir269/24b2443-nlp-bootcamp
-Exploration scripts for ideas that were tried and not used (RM3, LSA, learning-to-rank, reranker comparison, the
-learned evidence-selection model cited in report Q5, error and data analysis, …) are there under `code/experiments/`;
-they are not needed to reproduce the submitted files.
+All experiments that were tried (and why most were not adopted), the data analysis and the error analysis are
+summarised in the README of the submission repository: https://github.com/Mihir269/24b2443-nlp-bootcamp
+Only the scripts needed to reproduce the submitted files are included here.
