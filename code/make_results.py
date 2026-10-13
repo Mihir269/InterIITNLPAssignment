@@ -5,7 +5,8 @@ import os
 from common import CACHE, ROOT
 
 C = lambda f: json.load(open(os.path.join(CACHE, f)))
-r = json.load(open(os.path.join(ROOT, "assignment", "results_template.json")))
+tpl = os.path.join(ROOT, "assignment", "results_template.json")  # provided template; falls back to results.json itself
+r = json.load(open(tpl if os.path.exists(tpl) else os.path.join(ROOT, "results.json")))
 old = json.load(open(os.path.join(ROOT, "results.json"))) if os.path.exists(os.path.join(ROOT, "results.json")) else {}
 t1, t2, t3, t4 = C("t1_bm25.json"), C("t2_stats.json"), C("t3_stats.json"), C("t4_stats.json")
 t5 = C(os.environ.get("T5_STATS", "t5_stats_nli.json"))
